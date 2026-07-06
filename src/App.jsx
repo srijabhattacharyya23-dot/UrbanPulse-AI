@@ -4,7 +4,7 @@ import {
   AlertOctagon, CheckCircle2, ChevronRight,
   TrendingUp, Trash2, Droplet, Lightbulb, MapPin,
   Wrench, Send, Landmark, HelpCircle, AlertTriangle, FileText,
-  Clock, Shield, BarChart3, Database, ShieldCheck
+  Clock, Shield, BarChart3, Database, ShieldCheck, Plus, Check, PenTool
 } from 'lucide-react';
 
 export default function App() {
@@ -30,6 +30,39 @@ export default function App() {
   ]);
 
   const consoleEndRef = useRef(null);
+
+  // New Incident Form States
+  const [newTitle, setNewTitle] = useState('');
+  const [newCategory, setNewCategory] = useState('Infrastructure');
+  const [newSubcategory, setNewSubcategory] = useState('Road Damage (PWD)');
+  const [newSeverity, setNewSeverity] = useState('High');
+  const [newUrgency, setNewUrgency] = useState('High');
+  const [newLocation, setNewLocation] = useState('Sector 3 Main Bypass');
+  const [newCitizens, setNewCitizens] = useState(2500);
+  const [newDescription, setNewDescription] = useState('');
+
+  // Emergency Reserve Budget State (INR Lakhs)
+  const [reserveFunds, setReserveFunds] = useState(50.0); // INR 50 Lakhs
+
+  // Subsurface GPR Scanner States
+  const [scanActive, setScanActive] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanResult, setScanResult] = useState(null);
+
+  // AI Advice Tab States
+  const [copilotObjective, setCopilotObjective] = useState('safety');
+  const [copilotPrompt, setCopilotPrompt] = useState('');
+  const [copilotReply, setCopilotReply] = useState('');
+  const [copilotLoading, setCopilotLoading] = useState(false);
+
+  // Active Field Squads State
+  const [squads, setSquads] = useState([
+    { id: 'SQ-PWD-1', name: 'PWD Rapid Pavement Unit 1', dept: 'PWD', status: 'REPAIRING', assignment: 'CP-2026-001' },
+    { id: 'SQ-JAL-1', name: 'Jal Board Emergency Pipe Crew 3', dept: 'Jal Board', status: 'REPAIRING', assignment: 'CP-2026-002' },
+    { id: 'SQ-SBM-1', name: 'Swachh Bharat Waste Compactor 8', dept: 'Swachh Bharat', status: 'IDLE', assignment: 'None' },
+    { id: 'SQ-JAL-2', name: 'Jal Board Sewer Flush Squad 2', dept: 'Jal Board', status: 'REPAIRING', assignment: 'CP-2026-005' },
+    { id: 'SQ-ELE-1', name: 'DISCOM Streetlight Grid Squad', dept: 'DISCOM', status: 'IDLE', assignment: 'None' }
+  ]);
 
   // Periodic scrolling console simulator
   useEffect(() => {
@@ -204,7 +237,8 @@ export default function App() {
       decision: 'Invoke Section 14 emergency procurement powers to hire private water tankers and buy rapid-set flowable concrete.',
       why: 'Bypasses standard 14-day government tender times to initiate on-site repairs in under 2 hours.',
       impact: 'Immediate safety barricades and clean water distribution within 4 hours.',
-      resources: 'INR 3.5 Lakhs emergency emergency fund authorization.',
+      resources: 'INR 3.5 Lakhs emergency fund authorization.',
+      cost: 3.5,
       timeline: 'Instant'
     },
     {
@@ -215,6 +249,7 @@ export default function App() {
       why: 'Prevents inter-departmental delays and synchronizes pipe welding with structural repaving.',
       impact: 'Speeds up road reopening timeline by 18 hours.',
       resources: 'PWD & Jal Board regional engineering staff.',
+      cost: 1.0,
       timeline: '6 Hours'
     },
     {
@@ -225,6 +260,7 @@ export default function App() {
       why: 'Ensures potable water access, mitigating outbreak risk while pipelines are flushed.',
       impact: '95% reduction in public health risk and waterborne illnesses.',
       resources: '12 Water tankers (6 municipal + 6 hired).',
+      cost: 2.2,
       timeline: '4 Hours'
     },
     {
@@ -234,7 +270,8 @@ export default function App() {
       decision: 'Deploy Ground-Penetrating Radar (GPR) to scan all high-traffic road channels.',
       why: 'Finds subsurface air voids and washouts before they collapse under traffic.',
       impact: 'Proactively prevents catastrophic collapses along transit lines.',
-      resources: 'Contractor hiring, INR 6 Lakhs.',
+      resources: 'Contractor hiring, INR 6.0 Lakhs.',
+      cost: 6.0,
       timeline: '72 Hours'
     },
     {
@@ -245,15 +282,149 @@ export default function App() {
       why: 'Clears public health hazard, restores commercial trade indices.',
       impact: 'Restores market sanitization and business customer count by tomorrow.',
       resources: '4 Trucks, 12 staff, bleaching powder disinfectants.',
+      cost: 1.5,
       timeline: '12 Hours'
     }
   ];
 
-  const approveDecision = (id) => {
+  // Submit New Complaint Form Action
+  const handleAddIncident = (e) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDescription.trim()) {
+      alert('Please fill in the incident title and details!');
+      return;
+    }
+
+    const newId = `CP-2026-00${complaints.length + 1}`;
+    const colors = {
+      'Infrastructure': 'glow-crimson',
+      'Water & Sanitation': 'glow-saffron',
+      'Solid Waste': 'glow-yellow',
+      'Public Safety': 'glow-blue'
+    };
+
+    const newTicket = {
+      id: newId,
+      title: newTitle,
+      category: newCategory,
+      subcategory: newSubcategory,
+      severity: newSeverity,
+      priority: Math.floor(Math.random() * 40) + 50,
+      urgency: newUrgency,
+      citizensAffected: Number(newCitizens) || 1500,
+      department: newCategory === 'Infrastructure' ? 'PWD (Public Works Department)' :
+                  newCategory === 'Water & Sanitation' ? 'Greenfield Jal Board' :
+                  newCategory === 'Solid Waste' ? 'Swachh Bharat Division' : 'DISCOM (Electricity)',
+      rootCause: 'Under investigation by AI Diagnostics.',
+      resolutionTime: '24 Hours',
+      status: 'Open',
+      image: null,
+      location: newLocation,
+      date: new Date().toISOString().substring(0, 16),
+      mapX: `${Math.floor(Math.random() * 60) + 20}%`,
+      mapY: `${Math.floor(Math.random() * 60) + 20}%`,
+      colorClass: colors[newCategory] || 'glow-yellow',
+      description: newDescription
+    };
+
+    setComplaints(prev => [...prev, newTicket]);
+    setSelectedComplaintId(newId);
+    setHealthScore(prev => Math.max(prev - 5, 10)); // Deduct health temporarily on new incident
+
+    // Push console logs
+    const timestamp = new Date().toLocaleTimeString();
+    setConsoleLogs(prev => [
+      ...prev,
+      `[CITIZEN INGESTION] Logged ticket ${newId}: "${newTitle}"`,
+      `[AI DIAGNOSTICS] Registered coordinate pin at map grids.`
+    ]);
+
+    // Reset Form
+    setNewTitle('');
+    setNewDescription('');
+    alert(`Incident ${newId} logged successfully onto Mahanagar portal!`);
+  };
+
+  // Digital Mandate Signatures
+  const approveDecision = (id, cost) => {
     if (approvedDecisions[id]) return;
-    setApprovedDecisions(prev => ({ ...prev, [id]: true }));
-    setHealthScore(prev => Math.min(prev + 8, 100));
-    setConsoleLogs(prev => [...prev, `[COMMAND] Commissioner approved Directive ${id}. Operations dispatched.`]);
+    if (reserveFunds < cost) {
+      alert('Insufficient emergency reserve funds to execute this directive!');
+      return;
+    }
+
+    setApprovedDecisions(prev => ({ ...prev, [id]: 'Signing...' }));
+
+    setTimeout(() => {
+      setApprovedDecisions(prev => ({ ...prev, [id]: 'Authorized' }));
+      setReserveFunds(prev => Number((prev - cost).toFixed(2)));
+      setHealthScore(prev => Math.min(prev + 10, 100));
+      setConsoleLogs(prev => [...prev, `[COMMAND] Commissioner authorized Directive ${id}. Reserve budget committed: -INR ${cost} Lakhs.`]);
+    }, 1200);
+  };
+
+  // Subsurface GPR Scanner simulator trigger
+  const runSubsurfaceScan = () => {
+    if (scanActive) return;
+    setScanActive(true);
+    setScanProgress(0);
+    setScanResult(null);
+
+    const interval = setInterval(() => {
+      setScanProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setScanActive(false);
+          setScanResult({
+            anomaliesFound: 3,
+            maxDepth: '3.4 meters',
+            voidProbability: '89%',
+            status: 'High Soil Saturation detected under Metro Pillar 128 foundation.'
+          });
+          setConsoleLogs(prevLogs => [
+            ...prevLogs,
+            `[GPR SCANNER] Subsurface scanning completed. 3 void cavities found.`,
+            `[AI PREDICTOR] Soil structural safety ratio dropped to 0.42 near GT Avenue.`
+          ]);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 250);
+  };
+
+  // AI Recommender Engine strategy picker
+  const handleStrategyChange = (strategy) => {
+    setCopilotObjective(strategy);
+    setConsoleLogs(prev => [...prev, `[AI COPILOT] Active operational strategy changed to: ${strategy.toUpperCase()}`]);
+  };
+
+  // Interactive AI Advice Prompt Box handler
+  const handleCopilotQuery = (e) => {
+    e.preventDefault();
+    if (!copilotPrompt.trim()) return;
+
+    setCopilotLoading(true);
+    setConsoleLogs(prev => [...prev, `[USER COMMAND] Query sent to AI Copilot: "${copilotPrompt}"`]);
+
+    setTimeout(() => {
+      let replyText = '';
+      const query = copilotPrompt.toLowerCase();
+
+      if (query.includes('sinkhole') || query.includes('road')) {
+        replyText = `Tactical Strategy Plan for Road Collapse (GT Road):\n1. Authorize Section 14 Emergency Procurement immediately to deploy rapid-set concrete.\n2. Force close flow valve V-102 (downstream from Jal Board) to stop pipeline water flushing soil.\n3. Assign PWD Pavement Unit 1 (SQ-PWD-1) directly to site forJersey Barriers staging.`;
+      } else if (query.includes('water') || query.includes('turbidity') || query.includes('dirty')) {
+        replyText = `Tactical Strategy Plan for Tap Water Contamination:\n1. Commit INR 2.2 Lakhs to mobilize 12 water tankers to Blocks C & D immediately.\n2. Instruct Jal Board Crew 3 (SQ-JAL-1) to start pipeline hyper-chlorination flushing.\n3. Keep the public informed via SMS push reminders to boil water before drinking.`;
+      } else if (query.includes('sewer') || query.includes('market')) {
+        replyText = `Tactical Strategy Plan for Sewer Overflow near Market:\n1. Direct Jal Board Crew (SQ-JAL-2) to initiate hydro-jetting blockage extraction.\n2. Co-ordinate with Swachh Bharat compactors to wash down retail sidewalks.\n3. Expected time to extract blockage and dry sidewalk: 6 hours.`;
+      } else {
+        replyText = `Tactical Command recommendation for Greenfield Ward 144:\n- Your overall community health score is currently at ${healthScore}%.\n- High priority items: Grand Trunk Avenue Road Collapse (CP-2026-001) and Water Quality (CP-2026-002).\n- Recommended actions: Approve direct emergency mandates D1 and D3 in your Executive panel to bypass department delays.`;
+      }
+
+      setCopilotReply(replyText);
+      setCopilotLoading(false);
+      setConsoleLogs(prev => [...prev, `[AI COPILOT] Strategic instructions compiled successfully.`]);
+    }, 1500);
   };
 
   const handleResourceSim = () => {
@@ -294,6 +465,22 @@ export default function App() {
     setConsoleLogs(prev => [...prev, `[SIMULATOR] Resource configuration deployed. Target efficiency: ${efficiencyScore}%.`]);
   };
 
+  // Squad Assigner dropdown action
+  const handleAssignSquad = (squadId, complaintId) => {
+    setSquads(prev => prev.map(s => {
+      if (s.id === squadId) {
+        const timestamp = new Date().toLocaleTimeString();
+        setConsoleLogs(prevLogs => [...prevLogs, `[DISPATCH] Reassigned squad ${s.name} to ticket ${complaintId}`]);
+        return { 
+          ...s, 
+          assignment: complaintId, 
+          status: complaintId === 'None' ? 'IDLE' : 'REPAIRING' 
+        };
+      }
+      return s;
+    }));
+  };
+
   const recommendations = [
     { priority: 1, title: 'Shut down Main Valve V-102', benefit: 'Prevents further subgrade soil erosion', difficulty: 'Low', time: '30 Mins' },
     { priority: 2, title: 'Cordon Sector 3 Metro exit with Jersey Barriers', benefit: 'Eliminates accident/fall risks', difficulty: 'Low', time: '1 Hour' },
@@ -319,6 +506,10 @@ export default function App() {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (healthScore / 100) * circumference;
 
+  // Disease Outbreak Risk calculation based on Water Staff Allocation
+  const waterWorkers = allocatedWorkers.water;
+  const diseaseRiskVal = Math.max(10, Math.floor(82 - (waterWorkers * 8)));
+
   return (
     <div className="app-container">
       {/* Indian tricolour header strip */}
@@ -340,23 +531,23 @@ export default function App() {
 
         <nav className="nav-menu">
           <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <LayoutDashboard size={18} />
+            <LayoutDashboard size={16} />
             Command Dashboard
           </div>
           <div className={`nav-item ${activeTab === 'resource' ? 'active' : ''}`} onClick={() => setActiveTab('resource')}>
-            <Wrench size={18} />
+            <Wrench size={16} />
             Tactical Allocator
           </div>
           <div className={`nav-item ${activeTab === 'decisions' ? 'active' : ''}`} onClick={() => setActiveTab('decisions')}>
-            <Landmark size={18} />
+            <Landmark size={16} />
             Executive Mandates
           </div>
           <div className={`nav-item ${activeTab === 'predictive' ? 'active' : ''}`} onClick={() => setActiveTab('predictive')}>
-            <TrendingUp size={18} />
+            <TrendingUp size={16} />
             Spatial Predictions
           </div>
           <div className={`nav-item ${activeTab === 'recommendations' ? 'active' : ''}`} onClick={() => setActiveTab('recommendations')}>
-            <Lightbulb size={18} />
+            <Lightbulb size={16} />
             AI Advice
           </div>
         </nav>
@@ -384,8 +575,8 @@ export default function App() {
               <span className="status-dot"></span>
               Live Telemetry Linked
             </span>
-            <div className="clock-panel" style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={16} style={{ color: 'var(--saffron)' }} />
+            <div className="clock-panel" style={{ background: 'rgba(255,255,255,0.02)', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--card-border)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={14} style={{ color: 'var(--saffron)' }} />
               <span>Greenfield Local Time</span>
             </div>
           </div>
@@ -404,8 +595,8 @@ export default function App() {
               </span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Status: {healthScore < 50 ? 'Critical Alert' : 'Stabilizing'}</span>
             </div>
-            <div style={{ width: '80px', height: '80px', position: 'relative' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80">
+            <div style={{ width: '64px', height: '64px', position: 'relative' }}>
+              <svg width="64" height="64" viewBox="0 0 80 80">
                 <circle cx="40" cy="40" r={radius} fill="transparent" stroke="rgba(255, 255, 255, 0.03)" strokeWidth="6" />
                 <circle 
                   cx="40" 
@@ -431,8 +622,8 @@ export default function App() {
             </div>
             <div className="metric-main">
               <div>
-                <span className="metric-num">6</span>
-                <span className="metric-desc">5 unique | 1 duplicate</span>
+                <span className="metric-num">{complaints.length}</span>
+                <span className="metric-desc">{complaints.filter(c=>c.status!=='Duplicate').length} unique | {complaints.filter(c=>c.status==='Duplicate').length} duplicate</span>
               </div>
             </div>
           </div>
@@ -467,7 +658,7 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <div className="split-grid">
             {/* Left Hand: Ingested Complaints Table & Map */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div className="glowing-card">
                 <h3 className="section-title">
                   <FileText size={18} style={{ color: 'var(--saffron)' }} />
@@ -493,7 +684,7 @@ export default function App() {
                           style={{ background: selectedComplaintId === c.id ? 'rgba(255, 255, 255, 0.03)' : '' }}
                         >
                           <td style={{ fontWeight: 'bold', color: 'var(--saffron)' }}>{c.id}</td>
-                          <td style={{ maxWidth: '240px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                          <td style={{ maxWidth: '180px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                             {c.title}
                           </td>
                           <td><span className="department-chip">{c.category}</span></td>
@@ -517,6 +708,84 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* Log a New Incident Form (Feature Addition) */}
+              <div className="glowing-card">
+                <h3 className="section-title" style={{ color: 'var(--saffron)' }}>
+                  <Plus size={18} />
+                  Log Emergency Incident (Direct Ingestion)
+                </h3>
+                <form onSubmit={handleAddIncident} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Incident Title / Core Summary</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Broken sewer cover causing roadway blockages"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Category</label>
+                    <select 
+                      value={newCategory} 
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white' }}
+                    >
+                      <option value="Infrastructure">Infrastructure</option>
+                      <option value="Water & Sanitation">Water & Sanitation</option>
+                      <option value="Solid Waste">Solid Waste</option>
+                      <option value="Public Safety">Public Safety</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Location Area</label>
+                    <input 
+                      type="text" 
+                      value={newLocation}
+                      onChange={(e) => setNewLocation(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Severity</label>
+                    <select 
+                      value={newSeverity} 
+                      onChange={(e) => setNewSeverity(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white' }}
+                    >
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Impacted Residents count</label>
+                    <input 
+                      type="number" 
+                      value={newCitizens}
+                      onChange={(e) => setNewCitizens(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Citizen Text Message / Ingested Complaint Details</label>
+                    <textarea 
+                      placeholder="Enter the raw citizen report details..."
+                      rows="2"
+                      value={newDescription}
+                      onChange={(e) => setNewDescription(e.target.value)}
+                      style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white', outline: 'none', resize: 'none' }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: 'span 2', textAlign: 'right' }}>
+                    <button type="submit" className="cyber-btn-primary" style={{ width: '100%' }}>
+                      Log Incident into Command Matrix
+                    </button>
+                  </div>
+                </form>
               </div>
 
               {/* Duplicate Check panel */}
@@ -546,7 +815,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Interactive Ward Grid Map */}
+              {/* Interactive Map Grid */}
               <div className="glowing-card">
                 <h3 className="section-title">
                   <MapPin size={18} style={{ color: 'var(--saffron)' }} />
@@ -562,23 +831,17 @@ export default function App() {
                     <div 
                       key={c.id} 
                       className={`map-node-pulse ${c.colorClass} ${selectedComplaintId === c.id ? 'pulse-active-saffron' : ''}`}
-                      style={{ left: c.mapX, top: c.mapY, width: selectedComplaintId === c.id ? '16px' : '10px', height: selectedComplaintId === c.id ? '16px' : '10px' }}
+                      style={{ left: c.mapX, top: c.mapY, width: selectedComplaintId === c.id ? '14px' : '9px', height: selectedComplaintId === c.id ? '14px' : '9px' }}
                       onClick={() => setSelectedComplaintId(c.id)}
                       title={c.title}
                     />
                   ))}
-                  
-                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', background: 'rgba(0,0,0,0.6)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', display: 'flex', gap: '10px' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--crimson)' }}></span> Road Collapse</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--saffron)' }}></span> Tap Quality</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--blue)' }}></span> Sewers</span>
-                  </div>
                 </div>
               </div>
             </div>
 
             {/* Right Hand: Inspection details, visual scan and SMS replies */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div className="glowing-card inspector-card">
                 <div className="inspector-header">
                   <div>
@@ -614,14 +877,14 @@ export default function App() {
                   "{selectedComplaint.description}"
                 </div>
 
-                <div style={{ fontSize: '0.88rem', marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)', marginBottom: '6px' }}>AI Identified Root Cause</label>
+                <div style={{ fontSize: '0.88rem', marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)', marginBottom: '6px' }}>AI Identified Root Cause</label>
                   <span style={{ fontWeight: '600' }}>{selectedComplaint.rootCause}</span>
                 </div>
 
                 {selectedComplaint.image && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)' }}>Visual Scan (Active Core)</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)' }}>Visual Scan (Active Core)</label>
                     <div className="scanner-frame" style={{ backgroundImage: `url('/sinkhole.jpg')`, backgroundColor: '#0b0f19' }}>
                       <div className="scanner-ray"></div>
                       <div className="scanner-overlay-details">
@@ -639,7 +902,7 @@ export default function App() {
                   <Send size={16} style={{ color: 'var(--saffron)' }} />
                   Automated Citizen Communication
                 </h4>
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '10px', fontSize: '0.85rem', lineHeight: '1.5', border: '1px solid rgba(255,255,255,0.03)' }}>
+                <div style={{ background: 'rgba(0, 0, 0, 0.15)', padding: '16px', borderRadius: '8px', fontSize: '0.85rem', lineHeight: '1.5', border: '1px solid var(--card-border)' }}>
                   {getCitizenResponse(selectedComplaint)}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -656,134 +919,193 @@ export default function App() {
         )}
 
         {activeTab === 'resource' && (
-          <div className="glowing-card resource-box">
-            <h3 className="section-title">
-              <Wrench size={18} style={{ color: 'var(--saffron)' }} />
-              Command Staff Optimizer Simulator
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-12px' }}>
-              Drag and allocate the municipal workforce across active tasks. Available capacity: **30 Workers**.
-            </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.6fr', gap: '24px' }}>
+            <div className="glowing-card resource-box">
+              <h3 className="section-title">
+                <Wrench size={18} style={{ color: 'var(--saffron)' }} />
+                Tactical Allocator Simulator
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-12px' }}>
+                Drag and allocate the municipal workforce across active tasks. Available capacity: **30 Workers**.
+              </p>
 
-            <div className="pool-tags">
-              <div className="pool-tag">Personnel: <span className="tag-badge">30 / 30</span></div>
-              <div className="pool-tag">Compactors: <span className="tag-badge">6 Trucks</span></div>
-              <div className="pool-tag">PWD Paving: <span className="tag-badge">4 Teams</span></div>
-              <div className="pool-tag">Jal Board: <span className="tag-badge">3 Teams</span></div>
-            </div>
-
-            <div className="slider-group">
-              <div className="slider-row">
-                <span className="slider-label">1. Grand Trunk Avenue Sinkhole (PWD)</span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30" 
-                  className="custom-range-input" 
-                  value={allocatedWorkers.sinkhole} 
-                  onChange={(e) => setAllocatedWorkers({...allocatedWorkers, sinkhole: Number(e.target.value)})}
-                />
-                <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.sinkhole} Workers</span>
+              <div className="pool-tags">
+                <div className="pool-tag">Personnel: <span className="tag-badge">30 / 30</span></div>
+                <div className="pool-tag">Compactors: <span className="tag-badge">6 Trucks</span></div>
+                <div className="pool-tag">PWD Paving: <span className="tag-badge">4 Teams</span></div>
+                <div className="pool-tag">Jal Board: <span className="tag-badge">3 Teams</span></div>
               </div>
 
-              <div className="slider-row">
-                <span className="slider-label">2. Tap Water Contamination flushing (Jal Board)</span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30" 
-                  className="custom-range-input" 
-                  value={allocatedWorkers.water} 
-                  onChange={(e) => setAllocatedWorkers({...allocatedWorkers, water: Number(e.target.value)})}
-                />
-                <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.water} Workers</span>
-              </div>
-
-              <div className="slider-row">
-                <span className="slider-label">3. Sector 3 Market garbage backlog (Swachh Bharat)</span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30" 
-                  className="custom-range-input" 
-                  value={allocatedWorkers.garbage} 
-                  onChange={(e) => setAllocatedWorkers({...allocatedWorkers, garbage: Number(e.target.value)})}
-                />
-                <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.garbage} Workers</span>
-              </div>
-
-              <div className="slider-row">
-                <span className="slider-label">4. Sewer manhole overflow clearance (Jal Board)</span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30" 
-                  className="custom-range-input" 
-                  value={allocatedWorkers.sewage} 
-                  onChange={(e) => setAllocatedWorkers({...allocatedWorkers, sewage: Number(e.target.value)})}
-                />
-                <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.sewage} Workers</span>
-              </div>
-
-              <div className="slider-row">
-                <span className="slider-label">5. Streetlight circuit grid (DISCOM)</span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30" 
-                  className="custom-range-input" 
-                  value={allocatedWorkers.streetlights} 
-                  onChange={(e) => setAllocatedWorkers({...allocatedWorkers, streetlights: Number(e.target.value)})}
-                />
-                <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.streetlights} Workers</span>
-              </div>
-            </div>
-
-            <div>
-              <button className="cyber-btn-primary" onClick={handleResourceSim}>
-                Run Simulator & Deploy Crews
-              </button>
-            </div>
-
-            {simulationRun && simulationResult && (
-              <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px' }}>
-                <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--green)', marginBottom: '16px' }}>Target Resolution Timelines</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '20px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Sinkhole</span>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-display)', color: 'var(--saffron)' }}>{simulationResult.sinkholeTime}h</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Water</span>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-display)', color: 'var(--saffron)' }}>{simulationResult.waterTime}h</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Garbage</span>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-display)', color: 'var(--saffron)' }}>{simulationResult.garbageTime}h</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Sewage</span>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-display)', color: 'var(--saffron)' }}>{simulationResult.sewageTime}h</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lighting</span>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-display)', color: 'var(--saffron)' }}>{simulationResult.lightsTime}h</div>
-                  </div>
+              <div className="slider-group">
+                <div className="slider-row">
+                  <span className="slider-label">Road Collapse</span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="30" 
+                    className="custom-range-input" 
+                    value={allocatedWorkers.sinkhole} 
+                    onChange={(e) => setAllocatedWorkers({...allocatedWorkers, sinkhole: Number(e.target.value)})}
+                  />
+                  <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.sinkhole}</span>
                 </div>
 
-                <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16,185,129,0.15)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
+                <div className="slider-row">
+                  <span className="slider-label">Water Contamination</span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="30" 
+                    className="custom-range-input" 
+                    value={allocatedWorkers.water} 
+                    onChange={(e) => setAllocatedWorkers({...allocatedWorkers, water: Number(e.target.value)})}
+                  />
+                  <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.water}</span>
+                </div>
+
+                <div className="slider-row">
+                  <span className="slider-label">Garbage Backlog</span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="30" 
+                    className="custom-range-input" 
+                    value={allocatedWorkers.garbage} 
+                    onChange={(e) => setAllocatedWorkers({...allocatedWorkers, garbage: Number(e.target.value)})}
+                  />
+                  <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.garbage}</span>
+                </div>
+
+                <div className="slider-row">
+                  <span className="slider-label">Sewer Overflow</span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="30" 
+                    className="custom-range-input" 
+                    value={allocatedWorkers.sewage} 
+                    onChange={(e) => setAllocatedWorkers({...allocatedWorkers, sewage: Number(e.target.value)})}
+                  />
+                  <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.sewage}</span>
+                </div>
+
+                <div className="slider-row">
+                  <span className="slider-label">Streetlights grid</span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="30" 
+                    className="custom-range-input" 
+                    value={allocatedWorkers.streetlights} 
+                    onChange={(e) => setAllocatedWorkers({...allocatedWorkers, streetlights: Number(e.target.value)})}
+                  />
+                  <span className="glow-num" style={{ textAlign: 'center' }}>{allocatedWorkers.streetlights}</span>
+                </div>
+              </div>
+
+              <div>
+                <button className="cyber-btn-primary" onClick={handleResourceSim} style={{ width: '100%' }}>
+                  Run Simulator & Deploy Crews
+                </button>
+              </div>
+
+              {simulationRun && simulationResult && (
+                <div style={{ marginTop: '16px', borderTop: '1px solid var(--card-border)', paddingTop: '20px' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--green)', marginBottom: '12px' }}>Resolution Timelines</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Road</span>
+                      <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>{simulationResult.sinkholeTime}h</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Water</span>
+                      <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>{simulationResult.waterTime}h</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Trash</span>
+                      <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>{simulationResult.garbageTime}h</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Sewer</span>
+                      <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>{simulationResult.sewageTime}h</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Grid</span>
+                      <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>{simulationResult.lightsTime}h</div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16,185,129,0.15)', padding: '12px', borderRadius: '8px', fontSize: '0.85rem' }}>
                     <strong>Configuration Efficiency: {simulationResult.efficiency}%</strong>
-                    <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Resource deployment ratios have been successfully matched. Overall Ward health increased.</span>
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Tactical Staffing Ratio Charts & Coordinator (Feature Addition) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <BarChart3 size={18} style={{ color: 'var(--saffron)' }} />
+                  Live Staffing Allocations
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {Object.entries(allocatedWorkers).map(([key, val]) => {
+                    const pct = Math.max(5, Math.min(100, Math.floor((val / 30) * 100)));
+                    const label = key === 'sinkhole' ? 'GT Road Sinkhole' :
+                                  key === 'water' ? 'Water Purification' :
+                                  key === 'garbage' ? 'Market Backlog' :
+                                  key === 'sewage' ? 'Sewer Overflow' : 'Streetlights';
+                    return (
+                      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                          <span>{label}</span>
+                          <span style={{ fontWeight: 'bold' }}>{val} Workers ({pct}%)</span>
+                        </div>
+                        <div style={{ height: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--card-border)', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ width: `${pct}%`, height: '100%', background: 'var(--saffron)' }}></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
+
+              {/* Squad Assigner Panel */}
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <Users2 size={18} style={{ color: 'var(--saffron)' }} />
+                  Squad Field Coordinator
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {squads.map(s => (
+                    <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.15)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--card-border)', fontSize: '0.8rem' }}>
+                      <div>
+                        <strong style={{ color: 'white' }}>{s.name}</strong>
+                        <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Status: <span style={{ color: s.status === 'IDLE' ? 'var(--green)' : 'var(--yellow)' }}>{s.status}</span> | Assignment: {s.assignment}</span>
+                      </div>
+                      <div>
+                        <select 
+                          value={s.assignment}
+                          onChange={(e) => handleAssignSquad(s.id, e.target.value)}
+                          style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '4px', padding: '4px 8px', color: 'white', fontSize: '0.75rem' }}
+                        >
+                          <option value="None">None (Standby)</option>
+                          {complaints.filter(c => c.status !== 'Duplicate').map(c => (
+                            <option key={c.id} value={c.id}>{c.id}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'decisions' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1.3fr', gap: '24px' }}>
             <div className="glowing-card">
               <h3 className="section-title">
                 <Landmark size={18} style={{ color: 'var(--saffron)' }} />
@@ -793,32 +1115,36 @@ export default function App() {
                 Deploy policy actions to bypass departmental delays and allocate emergency city resources.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {commissionerDecisions.map((d) => (
                   <div className="directive-node" key={d.id}>
                     <div className="directive-meta">
                       <span className="directive-label">{d.id}: Emergency Mandate</span>
-                      <span className="directive-boost">Health Index Boost: +8%</span>
+                      <span className="directive-boost">Health Index Boost: +10%</span>
                     </div>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{d.title}</h4>
-                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'white' }}>{d.title}</h4>
+                    <p style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                       <strong>Crisis Trigger:</strong> {d.problem}
                     </p>
-                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
+                    <p style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                       <strong>Directive:</strong> {d.decision}
                     </p>
                     <div className="directive-grid">
-                      <span>Fund Commitment: <strong>{d.resources}</strong></span>
+                      <span>Fund Commitment: <strong>INR {d.cost} Lakhs</strong></span>
                       <span>Execution Speed: <strong>{d.timeline}</strong></span>
                     </div>
                     <div style={{ alignSelf: 'flex-end', marginTop: '10px' }}>
-                      {approvedDecisions[d.id] ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--green)', fontWeight: 'bold' }}>
-                          <CheckCircle2 size={16} /> Active & Enforced
+                      {approvedDecisions[d.id] === 'Authorized' ? (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--green)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                          <CheckCircle2 size={16} /> Authorized & Dispatched
+                        </span>
+                      ) : approvedDecisions[d.id] === 'Signing...' ? (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--yellow)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                          <PenTool size={16} className="animate-pulse" /> Digitally Authorizing...
                         </span>
                       ) : (
-                        <button className="cyber-btn-primary" onClick={() => approveDecision(d.id)}>
-                          Enforce Mandate
+                        <button className="cyber-btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => approveDecision(d.id, d.cost)}>
+                          <PenTool size={14} /> Authorize Mandate
                         </button>
                       )}
                     </div>
@@ -826,116 +1152,290 @@ export default function App() {
                 ))}
               </div>
             </div>
+
+            {/* Emergency Reserve Ledger (Feature Addition) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <Landmark size={18} style={{ color: 'var(--saffron)' }} />
+                  Emergency Budget Ledger
+                </h3>
+                <div style={{ textAlign: 'center', padding: '20px 0', borderBottom: '1px solid var(--card-border)', marginBottom: '20px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Remaining Reserves Balance</span>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--saffron)', fontFamily: 'var(--font-display)', marginTop: '8px' }}>
+                    INR {reserveFunds} Lakhs
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Initial allocation: INR 50.0 Lakhs</span>
+                </div>
+
+                <h4 style={{ fontSize: '0.8rem', color: 'white', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Transaction History</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {commissionerDecisions.map(d => {
+                    const isSigned = approvedDecisions[d.id] === 'Authorized';
+                    return (
+                      <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '8px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--card-border)', borderRadius: '6px', opacity: isSigned ? 1 : 0.4 }}>
+                        <div>
+                          <span>Mandate {d.id}</span>
+                          <span style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-muted)' }}>{d.title}</span>
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: isSigned ? 'var(--crimson)' : 'var(--text-secondary)' }}>
+                          {isSigned ? `-INR ${d.cost} L` : `INR ${d.cost} L`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'predictive' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="glowing-card">
-              <h3 className="section-title">
-                <TrendingUp size={18} style={{ color: 'var(--saffron)' }} />
-                AI Spatial & Outbreak Predictions
-              </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <TrendingUp size={18} style={{ color: 'var(--saffron)' }} />
+                  AI Spatial & Outbreak Predictions
+                </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div className="hotspot-item">
-                  <div className="hotspot-badge" style={{ background: 'rgba(239, 68, 68, 0.08)' }}><AlertTriangle size={18} /></div>
-                  <div className="hotspot-info">
-                    <h4>Waterborne Contamination Plume (Zone C & D)</h4>
-                    <p>
-                      Turbidity levels remain at **18.2 NTU** at residential inflow valves. Models indicate a 74% probability of localized gastroenteritis spikes if gravity line sterilization is not finished in 24 hours.
-                    </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="hotspot-item">
+                    <div className="hotspot-badge" style={{ background: 'rgba(239, 68, 68, 0.08)' }}><AlertTriangle size={18} /></div>
+                    <div className="hotspot-info">
+                      <h4>Waterborne Contamination Plume (Zone C & D)</h4>
+                      <p>
+                        Turbidity levels remain at **18.2 NTU** at residential inflow valves. Models indicate a 74% probability of localized gastroenteritis spikes if gravity line sterilization is not finished in 24 hours.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="hotspot-item">
+                    <div className="hotspot-badge" style={{ background: 'rgba(249, 115, 22, 0.08)', color: 'var(--saffron)' }}><AlertTriangle size={18} /></div>
+                    <div className="hotspot-info">
+                      <h4>Metro elevated staircase subsidence warning</h4>
+                      <p>
+                        Subgrade void erosion is expanding at **0.15m/hr** under the current water line burst. Subsurface soil collapse may expand to the Metro structural footings if flowable concrete backfill is delayed.
+                      </p>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="hotspot-item">
-                  <div className="hotspot-badge" style={{ background: 'rgba(249, 115, 22, 0.08)', color: 'var(--saffron)' }}><AlertTriangle size={18} /></div>
-                  <div className="hotspot-info">
-                    <h4>Metro elevated staircase subsidence warning</h4>
-                    <p>
-                      Subgrade void erosion is expanding at **0.15m/hr** under the current water line burst. Subsurface soil collapse may expand to the Metro structural footings if flowable concrete backfill is delayed.
-                    </p>
+              {/* Subsurface GPR Scanner Widget (Feature Addition) */}
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <Activity size={18} style={{ color: 'var(--saffron)' }} />
+                  Subsurface GPR Structural Cavity Scanner
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '-12px', marginBottom: '20px' }}>
+                  Click to launch a Ground-Penetrating Radar scan along GT Avenue metro pillars to identify underground cavities.
+                </p>
+
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '20px', borderRadius: '8px', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Radar Scanner Module: Pillar 128</span>
+                    <button className="cyber-btn-primary" onClick={runSubsurfaceScan} disabled={scanActive}>
+                      {scanActive ? 'Scanning...' : 'Scan Subsurface'}
+                    </button>
                   </div>
+
+                  {scanActive && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <span>Sweeping RF frequencies...</span>
+                        <span>{scanProgress}%</span>
+                      </div>
+                      <div style={{ height: '6px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--card-border)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ width: `${scanProgress}%`, height: '100%', background: 'var(--saffron)' }}></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {scanResult && (
+                    <div style={{ borderTop: '1px dashed var(--card-border)', paddingTop: '16px', fontSize: '0.8rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>Depth Scanned: <strong>{scanResult.maxDepth}</strong></div>
+                      <div>Cavities Found: <strong style={{ color: 'var(--crimson)' }}>{scanResult.anomaliesFound} voids</strong></div>
+                      <div style={{ gridColumn: 'span 2' }}>Void Risk: <strong style={{ color: 'var(--crimson)' }}>{scanResult.voidProbability} collapse probability</strong></div>
+                      <div style={{ gridColumn: 'span 2', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239,68,68,0.1)', padding: '10px', borderRadius: '6px', color: 'var(--text-secondary)' }}>
+                        {scanResult.status}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="glowing-card" style={{ padding: '24px' }}>
-              <h3 className="section-title">
-                <Landmark size={20} style={{ color: 'var(--saffron)' }} />
-                Emergency Budget Recommendations
-              </h3>
-              <div className="meter-list">
-                {budgetAllocations.map((b, idx) => (
-                  <div className="meter-item" key={idx}>
-                    <div className="meter-meta">
-                      <span style={{ fontWeight: '600' }}>{b.dept}</span>
-                      <span style={{ color: 'var(--saffron)', fontWeight: 'bold' }}>{b.percentage}% Allocation</span>
-                    </div>
-                    <div className="meter-track">
-                      <div 
-                        className="meter-fill" 
-                        style={{ 
-                          width: `${b.percentage}%`,
-                          background: idx === 0 ? 'var(--crimson)' : idx === 1 ? 'var(--saffron)' : 'var(--blue)'
-                        }}
-                      ></div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      <span>Priority: <strong>{b.priority}</strong></span>
-                      <span>Expected ROI: <strong>{b.roi}</strong></span>
+            {/* Outbreak Risk Projections Chart (Feature Addition) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <ShieldCheck size={18} style={{ color: 'var(--saffron)' }} />
+                  Pathogen Outbreak Risk Simulator
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', padding: '20px 0' }}>
+                  <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="120" height="120" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="8" />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke={diseaseRiskVal > 50 ? 'var(--crimson)' : 'var(--green)'} strokeWidth="8" strokeDasharray="251.2" strokeDashoffset={251.2 - (diseaseRiskVal/100)*251.2} transform="rotate(-90 50 50)" style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }} />
+                    </svg>
+                    <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{diseaseRiskVal}%</span>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Risk Level</span>
                     </div>
                   </div>
-                ))}
+                  <div style={{ fontSize: '0.8rem', textAlign: 'center', color: 'var(--text-secondary)', padding: '0 10px' }}>
+                    Risk of waterborne outbreak in Ward 144 based on Jal Board staffing level. Current water flush workers: <strong>{waterWorkers}</strong>.
+                  </div>
+                  <div style={{ background: diseaseRiskVal > 50 ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)', border: `1px solid ${diseaseRiskVal > 50 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}`, padding: '10px 14px', borderRadius: '6px', fontSize: '0.75rem', textAlign: 'center' }}>
+                    {diseaseRiskVal > 50 ? '⚠️ High pathogen build up. Outbreak warning active.' : '✅ Safe chlorine limits. Pathogens minimized.'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="glowing-card" style={{ padding: '24px' }}>
+                <h3 className="section-title">
+                  <Landmark size={20} style={{ color: 'var(--saffron)' }} />
+                  Emergency Budget Recommendations
+                </h3>
+                <div className="meter-list">
+                  {budgetAllocations.map((b, idx) => (
+                    <div className="meter-item" key={idx}>
+                      <div className="meter-meta">
+                        <span style={{ fontWeight: '600' }}>{b.dept}</span>
+                        <span style={{ color: 'var(--saffron)', fontWeight: 'bold' }}>{b.percentage}% Allocation</span>
+                      </div>
+                      <div className="meter-track">
+                        <div 
+                          className="meter-fill" 
+                          style={{ 
+                            width: `${b.percentage}%`,
+                            background: idx === 0 ? 'var(--crimson)' : idx === 1 ? 'var(--saffron)' : 'var(--blue)'
+                          }}
+                        ></div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        <span>Priority: <strong>{b.priority}</strong></span>
+                        <span>Expected ROI: <strong>{b.roi}</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'recommendations' && (
-          <div className="glowing-card">
-            <h3 className="section-title">
-              <Lightbulb size={18} style={{ color: 'var(--saffron)' }} />
-              AI Strategic Recommendations Ranked by Impact
-            </h3>
-            <div className="custom-table-container">
-              <table className="pulse-table">
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Recommendation</th>
-                    <th>Expected Benefit</th>
-                    <th>Difficulty</th>
-                    <th>Lead Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recommendations.map(r => (
-                    <tr key={r.priority}>
-                      <td style={{ fontWeight: 'bold', color: 'var(--saffron)' }}>#{r.priority}</td>
-                      <td><strong>{r.title}</strong></td>
-                      <td>{r.benefit}</td>
-                      <td>
-                        <span className={`badge-status ${r.difficulty === 'High' ? 'crit' : r.difficulty === 'Medium' ? 'hi' : 'lo'}`}>
-                          {r.difficulty}
-                        </span>
-                      </td>
-                      <td>{r.time}</td>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1.7fr', gap: '24px' }}>
+            {/* Strategy Objective selector & Prompt Box (Feature Addition) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glowing-card">
+                <h3 className="section-title">
+                  <ShieldCheck size={18} style={{ color: 'var(--saffron)' }} />
+                  AI Recommender Strategy
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '-12px', marginBottom: '20px' }}>
+                  Configure AI Copilot parameters to prioritize municipal KPIs.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button 
+                    className="cyber-btn-secondary" 
+                    onClick={() => handleStrategyChange('safety')}
+                    style={{ background: copilotObjective === 'safety' ? 'rgba(249, 115, 22, 0.08)' : '', border: copilotObjective === 'safety' ? '1px solid var(--saffron)' : '', color: copilotObjective === 'safety' ? 'white' : '' }}
+                  >
+                    Shield Priority (Maximize Public Safety)
+                  </button>
+                  <button 
+                    className="cyber-btn-secondary" 
+                    onClick={() => handleStrategyChange('budget')}
+                    style={{ background: copilotObjective === 'budget' ? 'rgba(249, 115, 22, 0.08)' : '', border: copilotObjective === 'budget' ? '1px solid var(--saffron)' : '', color: copilotObjective === 'budget' ? 'white' : '' }}
+                  >
+                    Ledger Economy (Minimize Capital Expenses)
+                  </button>
+                  <button 
+                    className="cyber-btn-secondary" 
+                    onClick={() => handleStrategyChange('speed')}
+                    style={{ background: copilotObjective === 'speed' ? 'rgba(249, 115, 22, 0.08)' : '', border: copilotObjective === 'speed' ? '1px solid var(--saffron)' : '', color: copilotObjective === 'speed' ? 'white' : '' }}
+                  >
+                    Chronos SLA (Minimize Work Hours to Reopen roads)
+                  </button>
+                </div>
+              </div>
+
+              {/* Interactive Prompt Box */}
+              <div className="glowing-card">
+                <h3 className="section-title" style={{ color: 'var(--saffron)' }}>
+                  <Send size={18} />
+                  Ask AI Command Copilot
+                </h3>
+                <form onSubmit={handleCopilotQuery} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Ask about pipeline burst, contaminated water, etc..."
+                    value={copilotPrompt}
+                    onChange={(e) => setCopilotPrompt(e.target.value)}
+                    style={{ background: '#090d16', border: '1px solid var(--card-border)', borderRadius: '6px', padding: '10px', color: 'white', outline: 'none', fontSize: '0.85rem' }}
+                  />
+                  <button type="submit" className="cyber-btn-primary" disabled={copilotLoading}>
+                    {copilotLoading ? 'Compiling advice...' : 'Query Copilot'}
+                  </button>
+                </form>
+
+                {copilotReply && (
+                  <div style={{ marginTop: '16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--card-border)', padding: '14px', borderRadius: '6px', fontSize: '0.8rem', lineHeight: '1.5', fontFamily: 'monospace', color: '#10b981', whiteSpace: 'pre-wrap' }}>
+                    {copilotReply}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Existing Ranked Advice Table */}
+            <div className="glowing-card">
+              <h3 className="section-title">
+                <Lightbulb size={18} style={{ color: 'var(--saffron)' }} />
+                AI Strategic Recommendations Ranked by Impact
+              </h3>
+              <div className="custom-table-container">
+                <table className="pulse-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Recommendation</th>
+                      <th>Expected Benefit</th>
+                      <th>Difficulty</th>
+                      <th>Lead Time</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recommendations.map(r => (
+                      <tr key={r.priority} style={{ opacity: copilotObjective === 'safety' && r.priority > 6 ? 0.4 : 1 }}>
+                        <td style={{ fontWeight: 'bold', color: 'var(--saffron)' }}>#{r.priority}</td>
+                        <td><strong>{r.title}</strong></td>
+                        <td>{r.benefit}</td>
+                        <td>
+                          <span className={`badge-status ${r.difficulty === 'High' ? 'crit' : r.difficulty === 'Medium' ? 'hi' : 'lo'}`}>
+                            {r.difficulty}
+                          </span>
+                        </td>
+                        <td>{r.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
 
         {/* Real-time Telemetry Terminal Console */}
-        <section className="glowing-card" style={{ padding: '20px', background: '#020617', border: '1px solid rgba(255,255,255,0.04)' }}>
-          <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontFamily: 'var(--font-display)', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
-            <Database size={14} style={{ color: 'var(--saffron)' }} />
+        <section className="glowing-card" style={{ padding: '16px', background: '#020617', border: '1px solid var(--card-border)' }}>
+          <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-display)', marginBottom: '10px', borderBottom: '1px solid var(--card-border)', paddingBottom: '6px' }}>
+            <Database size={12} style={{ color: 'var(--saffron)' }} />
             Ward 144 Real-time Ingestion Terminal
           </h4>
-          <div style={{ height: '80px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.75rem', color: '#10b981', display: 'flex', flexDirection: 'column', gap: '4px', lineHeight: '1.4' }}>
+          <div style={{ height: '70px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.75rem', color: '#10b981', display: 'flex', flexDirection: 'column', gap: '3px', lineHeight: '1.4' }}>
             {consoleLogs.map((log, index) => (
               <div key={index}>{log}</div>
             ))}
@@ -943,7 +1443,7 @@ export default function App() {
           </div>
         </section>
 
-        <footer style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px' }}>
+        <footer style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '10px', borderTop: '1px solid var(--card-border)', paddingTop: '12px' }}>
           <strong>UrbanPulse AI Dashboard (National Smart Cities Mission Support)</strong>
           <p style={{ marginTop: '2px' }}>Supported by Ministry of Housing and Urban Affairs, Government of India.</p>
         </footer>

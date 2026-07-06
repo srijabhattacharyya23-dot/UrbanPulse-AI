@@ -19,12 +19,24 @@ Rapid urban expansion in Indian cities often creates fragmented municipal manage
 
 ## ⚡ Key Features
 
-1. **Mahanagar Command Dashboard:** A live, high-contrast command panel providing at-a-glance telemetry on community health indices, active citizen complaint tickets, and emergency staff deployments.
-2. **Spatial Telemetry Grid Map:** An interactive, canvas-based visual map of Sector 3. It maps pulsating incident nodes (road collapse, water contamination, sewer overflow) that sync on-click to highlight tickets in the inspector.
-3. **Smart Duplicate Engine:** An AI-powered semantic duplicate checker that aggregates overlapping citizen uploads (e.g. merging duplicate reports on Pillar 128 sinkholes) with a 94% similarity index and click-to-merge actions.
-4. **Tactical Resource Allocator Simulator:** A live workspace simulator enabling the Commissioner to drag-allocate 30 workers across municipal projects, instantly plotting estimated resolution hours and safety improvement metrics.
-5. **Executive Crisis Directives:** Instant click-to-execute administrative orders (Section 14 emergency procurement, PWD-Jal Board Joint Task Force, emergency water tanker routes) that bypass standard municipal red tape.
-6. **Live Telemetry Terminal Log:** A scrolling console at the bottom of the screen simulating real-time feed telemetry from water turbidity, sewer blockages, and solid waste sensors.
+1. **Mahanagar Command Dashboard:**
+   * **Incident Ingestion System:** An interactive form allowing direct submission of emergency incidents (calculates impact ranges and maps pins dynamically).
+   * **Interactive Telemetry Map:** Blinking colored node coordinates representing active reports. Clicking map nodes directly focuses and inspects the incident card.
+   * **Deduplication Engine:** Scans and clusters duplicates with 94% confidence indicators and click-to-merge actions.
+2. **Tactical Resource Allocator:**
+   * **Interactive Sliders:** Workforce staging calculator for 30 personnel.
+   * **Staffing Ratio Charts:** HTML5 bar graphs calculating real-time load distribution ratios.
+   * **Field Squads Coordinator:** A dropdown panel assigning active teams (e.g. PWD Unit 1, Jal Board Crew 3) to specific tickets.
+3. **Executive Crisis Directives:**
+   * **Emergency reserve ledger:** Ledger displaying INR 50 Lakhs reserve fund balances and transaction cost deductions.
+   * **Digital Mandate Signatures:** Animates a digital approval signing flow before authorizing emergency orders.
+4. **Spatial Predictions:**
+   * **Subsurface GPR Scanner:** Sweeps radar frequencies across a grid to plot soil saturations and cavity voids.
+   * **Pathogen Outbreak Risk Simulator:** Interactive circular dial plotting waterborne outbreak risks based on chemical flushing staff ratios.
+5. **AI Advice:**
+   * **Mission Objective Selector:** Toggles copilot parameters (maximize public safety, ledger economy, speed of SLA) to filter priorities.
+   * **Interactive Command Prompter:** Interactive dialogue box compiling localized PWD and Jal Board strategies based on user query keywords.
+6. **Live Telemetry Ingestion Log:** Monospace console terminal streaming live sensor updates at the bottom.
 
 ---
 
