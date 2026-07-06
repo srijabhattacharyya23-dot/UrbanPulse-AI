@@ -398,8 +398,7 @@ export default function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span className="metric-desc">Community Health</span>
               <span className="metric-num" style={{ 
-                color: healthScore < 50 ? 'var(--crimson)' : healthScore < 80 ? 'var(--yellow)' : 'var(--green)',
-                textShadow: `0 0 10px ${healthScore < 50 ? 'var(--crimson-glow)' : 'var(--saffron-glow)'}`
+                color: healthScore < 50 ? 'var(--crimson)' : healthScore < 80 ? 'var(--yellow)' : 'var(--green)'
               }}>
                 {healthScore}%
               </span>
@@ -458,7 +457,7 @@ export default function App() {
             </div>
             <div className="metric-main">
               <div>
-                <span className="metric-num" style={{ color: 'var(--crimson)', textShadow: '0 0 10px var(--crimson-glow)' }}>High</span>
+                <span className="metric-num" style={{ color: 'var(--crimson)' }}>High</span>
                 <span className="metric-desc">Soil saturation at 85%</span>
               </div>
             </div>

@@ -3,12 +3,12 @@
 :root {
   --bg-dark: #030712;
   --bg-panel: #0b0f19;
-  --card-bg: rgba(15, 23, 42, 0.75);
-  --card-border: rgba(255, 255, 255, 0.06);
+  --card-bg: #0f172a;
+  --card-border: rgba(255, 255, 255, 0.1);
   
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
+  --text-secondary: #cbd5e1;
+  --text-muted: #8892b0;
   
   /* Indian Flag Inspired Cyberpunk Palette */
   --saffron: #f97316;
@@ -89,8 +89,7 @@ body {
 
 /* Sidebar styling */
 .sidebar {
-  background: rgba(11, 15, 25, 0.9);
-  backdrop-filter: blur(20px);
+  background: #080c14;
   border-right: 1px solid var(--card-border);
   padding: 28px 24px;
   display: flex;
@@ -272,8 +271,6 @@ body {
 /* Panel Containers */
 .glowing-card {
   background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 28px;
