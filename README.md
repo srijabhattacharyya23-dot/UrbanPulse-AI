@@ -82,3 +82,7 @@ To build and deploy the container to Google Cloud:
    ```bash
    gcloud run deploy urbanpulse-ai --source . --region asia-south1 --allow-unauthenticated
    ```
+
+---
+### 💖 Built with love by Special Grade Squad
+
