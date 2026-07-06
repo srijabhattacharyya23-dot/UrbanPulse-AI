@@ -29,7 +29,7 @@ export default function App() {
     '[AI AGENT] Running spatial duplicate check: CP-2026-003 flagged as 94% duplicate.'
   ]);
 
-  const consoleEndRef = useRef(null);
+  const terminalRef = useRef(null);
 
   // New Incident Form States
   const [newTitle, setNewTitle] = useState('');
@@ -86,10 +86,10 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll to bottom of terminal console
+  // Scroll to bottom of terminal console container directly (no window jumping)
   useEffect(() => {
-    if (consoleEndRef.current) {
-      consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [consoleLogs]);
 
@@ -1435,11 +1435,10 @@ export default function App() {
             <Database size={12} style={{ color: 'var(--saffron)' }} />
             Ward 144 Real-time Ingestion Terminal
           </h4>
-          <div style={{ height: '70px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.75rem', color: '#10b981', display: 'flex', flexDirection: 'column', gap: '3px', lineHeight: '1.4' }}>
+          <div ref={terminalRef} style={{ height: '70px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.75rem', color: '#10b981', display: 'flex', flexDirection: 'column', gap: '3px', lineHeight: '1.4' }}>
             {consoleLogs.map((log, index) => (
               <div key={index}>{log}</div>
             ))}
-            <div ref={consoleEndRef} />
           </div>
         </section>
 
